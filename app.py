@@ -1,5 +1,5 @@
 from flask import Flask, render_template, jsonify
-from orm_queries import get_samples
+from orm_queries import get_samples, get_otu_descriptions, get_sample_metadata
 
 app = Flask(__name__)
 
@@ -25,7 +25,6 @@ def names():
         "BB_947",
         ...
     ]
-
     """
     return jsonify(get_samples())
 
@@ -45,11 +44,29 @@ def otu():
         ...
     ]
     """
-    pass
+    return jsonify(get_otu_descriptions())
+
+
+@app.route('/metadata')
+def metadata():
+    """MetaData for all samples.
+
+    Returns a list of json of sample metadata in the format
+
+    {
+        AGE: 24,
+        BBTYPE: "I",
+        ETHNICITY: "Caucasian",
+        GENDER: "F",
+        LOCATION: "Beaufort/NC",
+        SAMPLEID: 940
+    }
+    """
+    return jsonify(get_sample_metadata())
 
 
 @app.route('/metadata/<sample>')
-def metadata(sample):
+def metadata_sample(sample):
     """MetaData for a given sample.
 
     Args: Sample in the format: `BB_940`
@@ -65,7 +82,17 @@ def metadata(sample):
         SAMPLEID: 940
     }
     """
-    pass
+    sample_metadata = get_sample_metadata()
+
+    for metadata in sample_metadata:
+
+        sample_id = int(sample[3:])
+
+        if metadata['SAMPLEID'] == sample_id:
+
+            return jsonify(metadata)
+
+    return jsonify({"error": f"Sample name of '{sample}' not found."}), 404
 
 
 @app.route('/wfreq/<sample>')
