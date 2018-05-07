@@ -3,6 +3,7 @@ import sqlalchemy
 from sqlalchemy import create_engine, func
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
+import pandas as pd
 import numpy as np
 
 # Create engine
@@ -33,7 +34,7 @@ def get_samples():
 
     for sample_id in sample_dict:
 
-        if sample_id != '_sa_instance_state' and sample_id != 'otu_id':
+        if sample_id != "_sa_instance_state" and sample_id != "otu_id":
 
             sample_number = int(sample_id[3:])
 
@@ -45,7 +46,7 @@ def get_samples():
 
     for sample in sorted_samples:
 
-        full_sample_name = f'BB_{sample}'
+        full_sample_name = f"BB_{sample}"
 
         samples.append(full_sample_name)
 
@@ -87,3 +88,43 @@ def get_sample_metadata():
         sample_metadata.append(row)
 
     return sample_metadata
+
+
+def get_washing_frequency():
+
+    # Query fields from SamplesMetadata
+    results = session.query(SamplesMetadata.SAMPLEID, SamplesMetadata.WFREQ).all()
+
+    # Create lists of dicts
+    sample_metadata = []
+
+    for result in results:
+
+        row = {}
+
+        row["SAMPLEID"] = result[0]
+        row["WFREQ"] = result[1]
+
+        sample_metadata.append(row)
+
+    return sample_metadata
+
+
+def get_otu_id_values(sample_id):
+
+    # Initialize an empty list to store the sample table
+    otu_ids_by_samples = []
+
+    for row in session.query(Samples).all():
+        otu_ids_by_samples.append(row.__dict__)
+
+    samples_df = pd.DataFrame.from_dict(otu_ids_by_samples)
+
+    target_sample_df = samples_df[sample_id].sort_values(ascending=False).reset_index()
+
+    target_sample_df.columns = ["otu_ids", "sample_values"]
+
+    otu_id_values = [{'otu_ids': [ids for ids in target_sample_df['otu_ids']]},
+                     {'sample_values': [values for values in target_sample_df['sample_values']]}]
+
+    return otu_id_values

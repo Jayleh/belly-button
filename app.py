@@ -1,5 +1,9 @@
 from flask import Flask, render_template, jsonify
-from orm_queries import get_samples, get_otu_descriptions, get_sample_metadata
+from orm_queries import (get_samples,
+                         get_otu_descriptions,
+                         get_sample_metadata,
+                         get_washing_frequency,
+                         get_otu_id_values)
 
 app = Flask(__name__)
 
@@ -101,9 +105,19 @@ def wfreq(sample):
 
     Args: Sample in the format: `BB_940`
 
-    Returns an integer value for the weekly washing frequency `WFREQ`
+    Returns a json dictionary of sample and the weekly washing frequency `WFREQ`
     """
-    pass
+    sample_metadata = get_washing_frequency()
+
+    for metadata in sample_metadata:
+
+        sample_id = int(sample[3:])
+
+        if metadata['SAMPLEID'] == sample_id:
+
+            return jsonify(metadata)
+
+    return jsonify({"error": f"Sample name of '{sample}' not found."}), 404
 
 
 @app.route('/samples/<sample>')
@@ -133,7 +147,12 @@ def samples(sample):
         }
     ]
     """
-    pass
+    try:
+        otu_id_values = get_otu_id_values(sample)
+    except KeyError:
+        return jsonify({"error": f"Sample name of '{sample}' not found."}), 404
+
+    return jsonify(otu_id_values)
 
 
 if __name__ == '__main__':
