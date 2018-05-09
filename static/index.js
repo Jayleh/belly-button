@@ -118,7 +118,7 @@ function optionChanged(sample_id) {
     console.log(sample_id);
 
     switch (sample_id) {
-        case 'sample_id':
+        case sample_id:
             sampleTable(sample_id);
             pieChart(sample_id);
             bubbleChart(sample_id);
