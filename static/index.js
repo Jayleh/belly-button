@@ -31,21 +31,21 @@ function dropDown() {
 function sampleTable(sample_id) {
     let metaUrl = `/metadata/${sample_id}`;
 
-    let $tbody = Plotly.d3.select('#data-table');
+    let $tbody = Plotly.d3.select('table#data-table tbody');
 
     Plotly.d3.json(metaUrl, (error, metaData) => {
         if (error) return console.warn(error);
-
+        console.log('hi');
         console.log(metaData);
 
         console.log(Object.keys(metaData));
-
-        $tbody.append('tbody')
-            .selectAll('tr')
+        console.log('tbody', $tbody);
+        $tbody.selectAll('tr')
             .data(metaData)
             .enter()
             .append('tr')
             .html(data => {
+                console.log('Table Data', data);
                 return `<td>${Object.keys(data)}</td><td>${data[Object.keys(data)]}</td>`;
             });
     });
@@ -118,7 +118,7 @@ function optionChanged(sample_id) {
     console.log(sample_id);
 
     switch (sample_id) {
-        case sample_id:
+        case 'sample_id':
             sampleTable(sample_id);
             pieChart(sample_id);
             bubbleChart(sample_id);
