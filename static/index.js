@@ -31,9 +31,9 @@ function dropDown() {
 function sampleTable(sample_id) {
     let metaUrl = `/metadata/${sample_id}`;
 
-    let $tbody = Plotly.d3.select('table#data-table tbody');
+    let $tbody = d3.select('table#data-table tbody');
 
-    Plotly.d3.json(metaUrl, (error, metaData) => {
+    d3.json(metaUrl, (error, metaData) => {
         if (error) return console.warn(error);
         console.log('hi');
         console.log(metaData);
