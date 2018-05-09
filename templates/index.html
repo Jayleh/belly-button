@@ -10,8 +10,6 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
       crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}" />
-    <!-- Plotly charting library -->
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   </head>
 
   <body>
@@ -28,7 +26,7 @@
         <div class="row">
           <div class="col-md-6">
             <select id="selDataset" onchange="optionChanged(this.value)"></select>
-            <table id="data-table" class="table">
+            <table id="data-table" class="table table-sm">
               <tbody></tbody>
             </table>
           </div>
@@ -47,7 +45,7 @@
       </div>
     </main>
 
-    <script src="https://d3js.org/d3.v5.min.js"></script>
+
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
       crossorigin="anonymous"></script>
@@ -55,6 +53,8 @@
       crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm"
       crossorigin="anonymous"></script>
+    <!-- Plotly charting library -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <!-- External javascript -->
     <script src="{{ url_for('static', filename='index.js') }}"></script>
   </body>

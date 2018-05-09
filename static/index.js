@@ -1,17 +1,7 @@
-// // get value on change select
-// function getValue() {
-//     value = document.querySelector("select").value;
-//     getDataPie(value);
-//     getDataTable(value);
-//     getDataGauge(value);
-//     getDataBubble(value);
-// }
-
-
 function dropDown() {
     let $select = Plotly.d3.select('#selDataset');
 
-    let namesUrl = '/names'
+    let namesUrl = '/names';
 
     Plotly.d3.json(namesUrl, (error, nameList) => {
         if (error) return console.warn(error);
@@ -35,20 +25,39 @@ function sampleTable(sample_id) {
 
     Plotly.d3.json(metaUrl, (error, metaData) => {
         if (error) return console.warn(error);
-        console.log('hi');
-        console.log(metaData);
 
-        console.log(Object.keys(metaData));
-        console.log('tbody', $tbody);
-        $tbody.selectAll('tr')
-            .data(metaData)
-            .enter()
-            .append('tr')
-            .html(data => {
-                console.log('Table Data', data);
-                return `<td>${Object.keys(data)}</td><td>${data[Object.keys(data)]}</td>`;
-            });
+        // console.log(metaData);
+        // console.log(Object.keys(metaData));
+
+        $tbody.selectAll('tr').remove();
+
+        for (let key in metaData) {
+            $tbody.append('tr')
+                .html(`<td>${key}</td><td>${metaData[key]}</td>`);
+        }
     });
+}
+
+function getClassification(otuIds) {
+    let otuUrl = '/otu';
+
+    let otuList = [];
+
+    Plotly.d3.json(otuUrl, (error, otuData) => {
+        if (error) return console.warn(error);
+
+        // console.log(otuData);
+
+        for (let i = 0, ii = otuData.length; i < ii; i++) {
+            for (let j = 0, jj = otuIds.length; j < jj; j++) {
+                if (i === +otuIds[j]) {
+                    otuList.push(otuData[i]);
+                }
+            }
+        }
+    });
+
+    return otuList;
 }
 
 
@@ -60,17 +69,21 @@ function pieChart(sample_id) {
 
         // console.log(samplesData);
 
+        let otuIds = samplesData[0].otu_ids.slice(0, 10);
+        let sampleValues = samplesData[1].sample_values.slice(0, 10);
+
+        let otuList = getClassification(otuIds);
+
         let pieTrace = {
-            labels: samplesData[0].otu_ids.slice(0, 10),
-            values: samplesData[1].sample_values.slice(0, 10),
-            type: 'pie'
+            labels: otuIds,
+            values: sampleValues,
+            type: 'pie',
+            text: otuList
         };
 
         let pieData = [pieTrace];
 
-        let pieLayout = {
-
-        };
+        let pieLayout = {};
 
         Plotly.newPlot('pie', pieData, pieLayout);
     });
@@ -85,20 +98,30 @@ function bubbleChart(sample_id) {
 
         // console.log(samplesData);
 
+        let sampleValues = samplesData[1].sample_values.filter(num => { return num !== 0; });
+        let otuIds = samplesData[0].otu_ids.slice(0, sampleValues.length);
+
+        // console.log(sampleValues);
+        // console.log(otuIds);
+
+        let otuList = getClassification(otuIds);
+
         let bubbleTrace = {
-            x: samplesData[0].otu_ids,
-            y: samplesData[1].sample_values,
+            x: otuIds,
+            y: sampleValues,
+            text: otuList,
             mode: 'markers',
             marker: {
-                size: samplesData[1].sample_values,
+                size: sampleValues,
                 colorscale: 'Portland',
-                color: samplesData[0].otu_ids
+                color: otuIds
             }
         };
 
         let bubbleData = [bubbleTrace];
 
         let bubbleLayout = {
+            hovermode: 'closest',
             xaxis: {
                 title: 'Operational Taxonomic Unit (OTU) ID'
             },
@@ -115,7 +138,7 @@ function bubbleChart(sample_id) {
 
 
 function optionChanged(sample_id) {
-    console.log(sample_id);
+    // console.log(sample_id);
 
     switch (sample_id) {
         case sample_id:
