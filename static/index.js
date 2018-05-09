@@ -38,6 +38,7 @@ function sampleTable(sample_id) {
     });
 }
 
+
 function getClassification(otuIds) {
     let otuUrl = '/otu';
 
@@ -78,14 +79,35 @@ function pieChart(sample_id) {
             labels: otuIds,
             values: sampleValues,
             type: 'pie',
-            text: otuList
+            text: otuList,
+            textinfo: 'percent',
+            textposition: 'inside'
+            // hoverinfo: `label+percent+value+${otuList}`
         };
 
         let pieData = [pieTrace];
 
-        let pieLayout = {};
+        let pieLayout = {
+            height: 300,
+            width: 500,
+            margin: {
+                l: 0,
+                r: 20,
+                b: 0,
+                t: 30,
+            }
+        };
 
-        Plotly.newPlot('pie', pieData, pieLayout);
+        Plotly.react('pie', pieData, pieLayout);
+
+        // let hasChart = Plotly.d3.select('#pie').classed('js-plotly-plot');
+
+        // if (hasChart === true) {
+        //     Plotly.restyle('pie', pieTrace);
+        // }
+        // else {
+        //     Plotly.newPlot('pie', pieData, pieLayout);
+        // }
     });
 }
 
@@ -129,10 +151,25 @@ function bubbleChart(sample_id) {
                 title: 'Sample Values'
             },
             height: 600,
-            width: 1200
+            width: 1200,
+            margin: {
+                l: 80,
+                r: 100,
+                b: 100,
+                t: 30,
+            }
         };
 
-        Plotly.newPlot('bubble', bubbleData, bubbleLayout);
+        Plotly.react('bubble', bubbleData, bubbleLayout);
+
+        // let hasChart = Plotly.d3.select('#bubble').classed('js-plotly-plot');
+
+        // if (hasChart === true) {
+        //     Plotly.restyle('bubble', bubbleTrace);
+        // }
+        // else {
+        //     Plotly.newPlot('bubble', bubbleData, bubbleLayout);
+        // }
     });
 }
 
