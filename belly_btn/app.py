@@ -8,7 +8,7 @@ from initdb import Otu, Samples, SamplesMetadata
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-    'DATABASE_URL', '') or "sqlite:///data/belly_button_biodiversity.sqlite"
+    'DATABASE_URL', 'sqlite:///data/belly_button_biodiversity.sqlite')
 
 db = SQLAlchemy(app)
 
