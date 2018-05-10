@@ -136,6 +136,7 @@ function gaugeChart(sample_id) {
             space = ' ',
             pathY = String(y),
             pathEnd = ' Z';
+
         let path = mainPath.concat(pathX, space, pathY, pathEnd);
 
         let gaugeData = [{
@@ -258,22 +259,10 @@ function bubbleChart(sample_id) {
 function optionChanged(sample_id) {
     // console.log(sample_id);
 
-    let defaultSample = 'BB_940';
-
-    switch (sample_id) {
-        case sample_id:
-            sampleTable(sample_id);
-            pieChart(sample_id);
-            bubbleChart(sample_id);
-            gaugeChart(sample_id);
-            break;
-        default:
-            sampleTable(defaultSample);
-            pieChart(defaultSample);
-            bubbleChart(defaultSample);
-            gaugeChart(defaultSample);
-            break;
-    }
+    sampleTable(sample_id);
+    pieChart(sample_id);
+    bubbleChart(sample_id);
+    gaugeChart(sample_id);
 }
 
 
