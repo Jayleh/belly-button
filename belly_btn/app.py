@@ -1,11 +1,9 @@
 import os
 from flask import Flask, render_template, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from orm_queries import (get_samples,
-                         get_otu_descriptions,
-                         get_sample_metadata,
-                         get_washing_frequency,
-                         get_otu_id_values)
+import numpy as np
+import pandas as pd
+from initdb import Otu, Samples, SamplesMetadata
 
 app = Flask(__name__)
 
@@ -23,77 +21,96 @@ def home():
 
 @app.route('/names')
 def names():
-    """List of sample names.
 
-    Returns a list of sample names in the format
-    [
-        "BB_940",
-        "BB_941",
-        "BB_943",
-        "BB_944",
-        "BB_945",
-        "BB_946",
-        "BB_947",
-        ...
-    ]
-    """
-    return jsonify(get_samples())
+    # Sample contains list of all sample ids
+    sample_ids = db.session.query(Samples).first()
+    sample_dict = sample_ids.__dict__
+
+    sample_names = []
+
+    for sample_id in sample_dict:
+
+        if sample_id != "_sa_instance_state" and sample_id != "otu_id":
+
+            sample_number = int(sample_id[3:])
+
+            sample_names.append(sample_number)
+
+    samples = []
+
+    sorted_samples = sorted(sample_names)
+
+    for sample in sorted_samples:
+
+        full_sample_name = f"BB_{sample}"
+
+        samples.append(full_sample_name)
+
+    return jsonify(samples)
 
 
 @app.route('/otu')
 def otu():
-    """List of OTU descriptions.
 
-    Returns a list of OTU descriptions in the following format
+    # Get operation taxonomic unit (otu) description from Otu
+    otu_list = db.session.query(Otu.lowest_taxonomic_unit_found).all()
 
-    [
-        "Archaea;Euryarchaeota;Halobacteria;Halobacteriales;Halobacteriaceae;Halococcus",
-        "Archaea;Euryarchaeota;Halobacteria;Halobacteriales;Halobacteriaceae;Halococcus",
-        "Bacteria",
-        "Bacteria",
-        "Bacteria",
-        ...
-    ]
-    """
-    return jsonify(get_otu_descriptions())
+    # Convert list of tuples into normal list
+    otu_desc = list(np.ravel(otu_list))
+
+    return jsonify(otu_desc)
 
 
 @app.route('/metadata')
 def metadata():
-    """MetaData for all samples.
 
-    Returns a list of json of sample metadata in the format
+    # Query fields from SamplesMetadata
+    results = db.session.query(SamplesMetadata.AGE, SamplesMetadata.BBTYPE, SamplesMetadata.ETHNICITY,
+                               SamplesMetadata.GENDER, SamplesMetadata.LOCATION,
+                               SamplesMetadata.SAMPLEID).all()
 
-    {
-        AGE: 24,
-        BBTYPE: "I",
-        ETHNICITY: "Caucasian",
-        GENDER: "F",
-        LOCATION: "Beaufort/NC",
-        SAMPLEID: 940
-    }
-    """
-    return jsonify(get_sample_metadata())
+    # Create lists of dicts
+    sample_metadata = []
+
+    for result in results:
+
+        row = {}
+
+        row["AGE"] = result[0]
+        row["BBTYPE"] = result[1]
+        row["ETHNICITY"] = result[2]
+        row["GENDER"] = result[3]
+        row["LOCATION"] = result[4]
+        row["SAMPLEID"] = result[5]
+
+        sample_metadata.append(row)
+
+    return jsonify(sample_metadata)
 
 
 @app.route('/metadata/<sample>')
 def metadata_sample(sample):
-    """MetaData for a given sample.
 
-    Args: Sample in the format: `BB_940`
+    # Query fields from SamplesMetadata
+    results = db.session.query(SamplesMetadata.AGE, SamplesMetadata.BBTYPE, SamplesMetadata.ETHNICITY,
+                               SamplesMetadata.GENDER, SamplesMetadata.LOCATION,
+                               SamplesMetadata.SAMPLEID).all()
 
-    Returns a json dictionary of sample metadata in the format
+    # Create lists of dicts
+    sample_metadata = []
 
-    {
-        AGE: 24,
-        BBTYPE: "I",
-        ETHNICITY: "Caucasian",
-        GENDER: "F",
-        LOCATION: "Beaufort/NC",
-        SAMPLEID: 940
-    }
-    """
-    sample_metadata = get_sample_metadata()
+    for result in results:
+
+        row = {}
+
+        row["AGE"] = result[0]
+        row["BBTYPE"] = result[1]
+        row["ETHNICITY"] = result[2]
+        row["GENDER"] = result[3]
+        row["LOCATION"] = result[4]
+        row["SAMPLEID"] = result[5]
+
+        sample_metadata.append(row)
 
     for metadata in sample_metadata:
 
@@ -108,13 +125,21 @@ def metadata_sample(sample):
 
 @app.route('/wfreq/<sample>')
 def wfreq(sample):
-    """Weekly Washing Frequency as a number.
 
-    Args: Sample in the format: `BB_940`
+    # Query fields from SamplesMetadata
+    results = db.session.query(SamplesMetadata.SAMPLEID, SamplesMetadata.WFREQ).all()
 
-    Returns a json dictionary of sample and the weekly washing frequency `WFREQ`
-    """
-    sample_metadata = get_washing_frequency()
+    # Create lists of dicts
+    sample_metadata = []
+
+    for result in results:
+
+        row = {}
+
+        row["SAMPLEID"] = result[0]
+        row["WFREQ"] = result[1]
+
+        sample_metadata.append(row)
 
     for metadata in sample_metadata:
 
@@ -129,35 +154,24 @@ def wfreq(sample):
 
 @app.route('/samples/<sample>')
 def samples(sample):
-    """OTU IDs and Sample Values for a given sample.
 
-    Sort your Pandas DataFrame (OTU ID and Sample Value)
-    in Descending Order by Sample Value
+    # Initialize an empty list to store the sample table
+    otu_ids_by_samples = []
 
-    Return a list of dictionaries containing sorted lists  for `otu_ids`
-    and `sample_values`
+    for row in db.session.query(Samples).all():
+        otu_ids_by_samples.append(row.__dict__)
 
-    [
-        {
-            otu_ids: [
-                1166,
-                2858,
-                481,
-                ...
-            ],
-            sample_values: [
-                163,
-                126,
-                113,
-                ...
-            ]
-        }
-    ]
-    """
+    samples_df = pd.DataFrame.from_dict(otu_ids_by_samples)
+
     try:
-        otu_id_values = get_otu_id_values(sample)
+        target_sample_df = samples_df[sample].sort_values(ascending=False).reset_index()
     except KeyError:
         return jsonify({"error": f"Sample name of '{sample}' not found."}), 404
+
+    target_sample_df.columns = ["otu_ids", "sample_values"]
+
+    otu_id_values = [{'otu_ids': [ids for ids in target_sample_df['otu_ids']]},
+                     {'sample_values': [values for values in target_sample_df['sample_values']]}]
 
     return jsonify(otu_id_values)
 
