@@ -88,12 +88,12 @@ function pieChart(sample_id) {
         let pieData = [pieTrace];
 
         let pieLayout = {
-            height: 300,
-            width: 500,
+            // height: 300,
+            // width: 500,
             margin: {
-                l: 0,
-                r: 20,
-                b: 0,
+                l: 30,
+                r: 30,
+                b: 30,
                 t: 30,
             }
         };
@@ -120,8 +120,11 @@ function gaugeChart(sample_id) {
 
         console.log(wfreqData);
 
-        // Enter a speed between 0 and 180
-        let level = 175;
+        let wfreq = wfreqData.WFREQ;
+
+        // Enter a washing freq between 0 and 180
+        const coefficient = 180 / 9;
+        let level = coefficient * wfreq;
 
         // Trig to calc meter point
         let degrees = 180 - level,
@@ -144,24 +147,23 @@ function gaugeChart(sample_id) {
             x: [0], y: [0],
             marker: { size: 28, color: '850000' },
             showlegend: false,
-            name: 'speed',
-            text: level,
+            name: 'Washing Frequency',
+            text: wfreq,
             hoverinfo: 'text+name'
         },
         {
-            values: [50 / 6, 50 / 6, 50 / 6, 50 / 6, 50 / 6, 50 / 6, 50],
+            values: [50 / 9, 50 / 9, 50 / 9, 50 / 9, 50 / 9, 50 / 9, 50 / 9, 50 / 9, 50 / 9, 50],
             rotation: 90,
-            text: ['TOO FAST!', 'Pretty Fast', 'Fast', 'Average',
-                'Slow', 'Super Slow', ''],
+            text: ['8-9', '7-8', '6-7', '5-6', '4-5', '3-4', '2-3', '1-2', '0-1', ''],
             textinfo: 'text',
             textposition: 'inside',
             marker: {
                 colors: ['rgba(14, 127, 0, .5)', 'rgba(110, 154, 22, .5)',
                     'rgba(170, 202, 42, .5)', 'rgba(202, 209, 95, .5)',
                     'rgba(210, 206, 145, .5)', 'rgba(232, 226, 202, .5)',
-                    'rgba(255, 255, 255, 0)']
+                    'rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0)']
             },
-            labels: ['151-180', '121-150', '91-120', '61-90', '31-60', '0-30', ''],
+            labels: ['8-9', '7-8', '6-7', '5-6', '4-5', '3-4', '2-3', '1-2', '0-1', ''],
             hoverinfo: 'label',
             hole: .5,
             type: 'pie',
@@ -177,8 +179,14 @@ function gaugeChart(sample_id) {
                     color: '850000'
                 }
             }],
-            height: 400,
-            width: 400,
+            // height: 400,
+            // width: 400,
+            margin: {
+                l: 30,
+                r: 30,
+                b: 30,
+                t: 80,
+            },
             xaxis: {
                 zeroline: false, showticklabels: false,
                 showgrid: false, range: [-1, 1]
@@ -261,8 +269,8 @@ function optionChanged(sample_id) {
 
     sampleTable(sample_id);
     pieChart(sample_id);
-    bubbleChart(sample_id);
     gaugeChart(sample_id);
+    bubbleChart(sample_id);
 }
 
 
@@ -273,8 +281,8 @@ function init() {
 
     sampleTable(defaultSample);
     pieChart(defaultSample);
-    bubbleChart(defaultSample);
     gaugeChart(defaultSample);
+    bubbleChart(defaultSample);
 }
 
 
