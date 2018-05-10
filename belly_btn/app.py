@@ -163,17 +163,15 @@ def samples(sample):
 
     samples_df = pd.DataFrame.from_dict(otu_ids_by_samples)
 
-    target_sample_df = samples_df[sample_id].sort_values(ascending=False).reset_index()
+    try:
+        target_sample_df = samples_df[sample].sort_values(ascending=False).reset_index()
+    except KeyError:
+        return jsonify({"error": f"Sample name of '{sample}' not found."}), 404
 
     target_sample_df.columns = ["otu_ids", "sample_values"]
 
     otu_id_values = [{'otu_ids': [ids for ids in target_sample_df['otu_ids']]},
                      {'sample_values': [values for values in target_sample_df['sample_values']]}]
-
-    try:
-        otu_id_values = get_otu_id_values(sample)
-    except KeyError:
-        return jsonify({"error": f"Sample name of '{sample}' not found."}), 404
 
     return jsonify(otu_id_values)
 
