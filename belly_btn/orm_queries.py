@@ -1,9 +1,9 @@
 # Dependencies
 from sqlalchemy import create_engine
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import Session
 import pandas as pd
 import numpy as np
+from app import db
 
 # Create engine
 engine = create_engine("sqlite:///data/belly_button_biodiversity.sqlite")
@@ -19,14 +19,11 @@ Otu = Base.classes.otu
 Samples = Base.classes.samples
 SamplesMetadata = Base.classes.samples_metadata
 
-# Create a session
-session = Session(engine)
-
 
 def get_samples():
 
     # Sample contains list of all sample ids
-    sample_ids = session.query(Samples).first()
+    sample_ids = db.session.query(Samples).first()
     sample_dict = sample_ids.__dict__
 
     sample_names = []
@@ -55,7 +52,7 @@ def get_samples():
 def get_otu_descriptions():
 
     # Get operation taxonomic unit (otu) description from Otu
-    otu_list = session.query(Otu.lowest_taxonomic_unit_found).all()
+    otu_list = db.session.query(Otu.lowest_taxonomic_unit_found).all()
 
     # Convert list of tuples into normal list
     otu_desc = list(np.ravel(otu_list))
@@ -66,9 +63,9 @@ def get_otu_descriptions():
 def get_sample_metadata():
 
     # Query fields from SamplesMetadata
-    results = session.query(SamplesMetadata.AGE, SamplesMetadata.BBTYPE, SamplesMetadata.ETHNICITY,
-                            SamplesMetadata.GENDER, SamplesMetadata.LOCATION,
-                            SamplesMetadata.SAMPLEID).all()
+    results = db.session.query(SamplesMetadata.AGE, SamplesMetadata.BBTYPE, SamplesMetadata.ETHNICITY,
+                               SamplesMetadata.GENDER, SamplesMetadata.LOCATION,
+                               SamplesMetadata.SAMPLEID).all()
 
     # Create lists of dicts
     sample_metadata = []
@@ -92,7 +89,7 @@ def get_sample_metadata():
 def get_washing_frequency():
 
     # Query fields from SamplesMetadata
-    results = session.query(SamplesMetadata.SAMPLEID, SamplesMetadata.WFREQ).all()
+    results = db.session.query(SamplesMetadata.SAMPLEID, SamplesMetadata.WFREQ).all()
 
     # Create lists of dicts
     sample_metadata = []
@@ -114,7 +111,7 @@ def get_otu_id_values(sample_id):
     # Initialize an empty list to store the sample table
     otu_ids_by_samples = []
 
-    for row in session.query(Samples).all():
+    for row in db.session.query(Samples).all():
         otu_ids_by_samples.append(row.__dict__)
 
     samples_df = pd.DataFrame.from_dict(otu_ids_by_samples)
