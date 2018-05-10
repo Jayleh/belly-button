@@ -1,4 +1,6 @@
+import os
 from flask import Flask, render_template, jsonify
+from flask_sqlalchemy import SQLAlchemy
 from orm_queries import (get_samples,
                          get_otu_descriptions,
                          get_sample_metadata,
@@ -6,6 +8,11 @@ from orm_queries import (get_samples,
                          get_otu_id_values)
 
 app = Flask(__name__)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+    'DATABASE_URL', '') or "sqlite:///data/belly_button_biodiversity.sqlite"
+
+db = SQLAlchemy(app)
 
 
 @app.route('/')
