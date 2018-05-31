@@ -118,7 +118,7 @@ function gaugeChart(sample_id) {
     Plotly.d3.json(wfreqUrl, (error, wfreqData) => {
         if (error) return console.warn(error);
 
-        console.log(wfreqData);
+        // console.log(wfreqData);
 
         let wfreq = wfreqData.WFREQ;
 
