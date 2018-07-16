@@ -8,7 +8,7 @@ Belly Button Diversity: The creation of this interactive dashboard was inspired 
 ## Webpage:
 * https://bellybtn.herokuapp.com/
 
-## Technology Stack
+## Technology Stack:
 Python<br>
 Flask framework<br>
 Sqlite<br>
